@@ -1,6 +1,8 @@
 <template>
   <div class="item">
-    <div class="content" v-if="!isEdit">{{ index + 1 }}. {{ task }}</div>
+    <div class="content" v-if="!isEdit" @click="doRedirect">
+      {{ index + 1 }}. {{ task.title }}
+    </div>
     <div class="content" v-else>
       <div class="indexNumber">{{ index + 1 }}.</div>
       <input type="text" v-model="edittedTask" />
@@ -18,7 +20,10 @@ export default {
   name: "TaskItem",
   props: {
     index: Number,
-    task: String,
+    task: {
+      title: String,
+      description: String,
+    },
   },
   data() {
     return {
@@ -27,18 +32,24 @@ export default {
     };
   },
   mounted() {
-    this.edittedTask = this.task;
+    this.edittedTask = this.task.title;
   },
   methods: {
     doEdit() {
       this.$emit("edit-task", {
         index: this.index,
-        task: this.edittedTask,
+        task: {
+          title: this.edittedTask,
+          description: this.description,
+        },
       });
       this.isEdit = false;
     },
     doDelete() {
       this.$emit("delete-task", this.index);
+    },
+    doRedirect() {
+      this.$router.push(`/${this.index}`);
     },
   },
 };

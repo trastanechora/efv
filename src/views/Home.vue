@@ -5,7 +5,7 @@
       <div
         class="taskItem"
         v-for="(taskItem, indexItem) in tasks"
-        :key="indexItem"
+        :key="indexItem.title"
       >
         <TaskItem
           :task="taskItem"
@@ -33,30 +33,28 @@ export default {
   components: {
     TaskItem,
   },
+  computed: {
+    tasks() {
+      return this.$store.state.tasks;
+    },
+  },
   data() {
     return {
-      tasks: [],
       currentTask: "",
     };
   },
   methods: {
     addTask() {
-      this.tasks.push(this.currentTask);
+      this.$store.dispatch("addTask", {
+        title: this.currentTask,
+      });
       this.currentTask = "";
     },
     editTask({ index, task }) {
-      this.tasks[index] = task;
-      this.tasks = this.tasks.map((currentTask, currentIndex) => {
-        if (currentIndex === index) {
-          return task;
-        }
-        return currentTask;
-      });
+      this.$store.dispatch("editTask", { index, task });
     },
     deleteTask(index) {
-      this.tasks = this.tasks.filter(
-        (_, currentIndex) => currentIndex !== index
-      );
+      this.$store.dispatch("deleteTask", { index });
     },
   },
 };
