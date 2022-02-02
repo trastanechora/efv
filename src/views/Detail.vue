@@ -1,17 +1,19 @@
 <template>
-  <div class="home">
-    <button @click="doBack">Kembali</button>
-    <h2>{{ currentTask.title }}</h2>
-    <p v-if="!currentTask.description && !isEdit">Belum ada deskripsi nih</p>
-    <p v-else>{{ currentTask.description }}</p>
-
-    <div v-if="isEdit">
-      <div class="editInput">
-        <input type="text" v-model="currentDescription" class="inputField" />
-        <button @click="doChangeDescription" class="inputButton">Simpan</button>
+  <div class="detail">
+    <img :src="currentArticle.url" alt="Banner" />
+    <h2>{{ currentArticle.title }}</h2>
+    <div class="attribute">
+      <div>{{ currentArticle.author }}</div>
+      <div>
+        {{ publishedDate.toLocaleDateString("id-ID", options) }} -
+        {{ publishedDate.toLocaleTimeString("id-ID") }}
       </div>
     </div>
-    <button v-else @click="isEdit = true">Ubah Deskripsi</button>
+    <p>{{ currentArticle.content }}</p>
+    <div v-if="currentArticle.articleUrl">
+      Lanjutkan baca ke: <a :href="currentArticle.articleUrl">Sini</a>
+    </div>
+    <button @click="doBack">Kembali</button>
   </div>
 </template>
 
@@ -19,44 +21,41 @@
 export default {
   name: "Detail",
   computed: {
-    currentIndex() {
-      return parseInt(this.$route.params.id);
+    currentArticle() {
+      return this.$store.state.currentArticle;
     },
-    currentTask() {
-      console.warn("tasks", this.$store.state.tasks);
-      return this.$store.state.tasks[this.currentIndex];
+    publishedDate() {
+      return new Date(this.currentArticle.publishedAt);
     },
   },
   data() {
     return {
-      isEdit: false,
-      currentDescription: "",
+      options: {
+        weekday: "long",
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      },
     };
   },
   methods: {
     doBack() {
       this.$router.back();
     },
-    doChangeDescription() {
-      console.warn("this.currentDescription", this.currentDescription);
-      this.$store.dispatch("editDescription", {
-        description: this.currentDescription,
-        index: this.currentIndex,
-      });
-      this.isEdit = false;
-    },
   },
 };
 </script>
 
 <style scoped>
-.editInput {
+h2 {
+  text-align: center;
+}
+img {
+  width: 100%;
+}
+.attribute {
   display: flex;
-}
-.inputField {
-  width: 90%;
-}
-.inputButton {
-  width: 10%;
+  place-content: space-between;
+  margin: 0 12px;
 }
 </style>

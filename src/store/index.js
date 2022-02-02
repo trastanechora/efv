@@ -1,61 +1,47 @@
 import Vue from "vue";
 import Vuex from "vuex";
 import createPersistedState from "vuex-persistedstate";
+import axios from "axios";
+
+const API_KEY = "2855be0bd75a436cb0f78dd5e74313cf";
 
 Vue.use(Vuex);
 const persistedstate = createPersistedState({
-  paths: ["tasks"],
+  paths: ["currentArticle"],
 });
 
 export default new Vuex.Store({
   plugins: [persistedstate],
   state: {
-    tasks: [],
+    articles: [],
+    isLoading: false,
+    currentArticle: {},
   },
   mutations: {
-    setNewTask(state, { title }) {
-      state.tasks.push({ title, description: "" });
+    setArticles(state, payload) {
+      state.articles = payload;
     },
-    setTasks(state, payload) {
-      state.tasks = payload;
+    setLoading(state, payload) {
+      state.isLoading = payload;
     },
-    removeTask(state, { index }) {
-      state.tasks = state.tasks.filter(
-        (_, currentIndex) => currentIndex !== index
-      );
+    setCurrentArticle(state, payload) {
+      state.currentArticle = payload;
     },
   },
   actions: {
-    addTask(store, payload) {
-      store.commit("setNewTask", payload);
+    fetchNews(store) {
+      store.commit("setLoading", true);
+      axios
+        .get(
+          `https://newsapi.org/v2/top-headlines?country=id&category=technology&apiKey=${API_KEY}`
+        )
+        .then((response) => {
+          store.commit("setArticles", response.data.articles);
+          store.commit("setLoading", false);
+        });
     },
-    editTask(store, payload) {
-      const newTasks = store.state.tasks.map((currentTask, currentIndex) => {
-        if (currentIndex === payload.index) {
-          return payload.task;
-        }
-        return currentTask;
-      });
-      store.commit("setTasks", newTasks);
-    },
-    deleteTask(store, payload) {
-      store.commit("removeTask", { index: payload.index });
-    },
-    editDescription(store, { index, description }) {
-      console.warn("editing", {
-        index,
-        description,
-      });
-      const newTasks = store.state.tasks.map((currentTask, currentIndex) => {
-        if (currentIndex === index) {
-          return {
-            title: currentTask.title,
-            description,
-          };
-        }
-        return currentTask;
-      });
-      store.commit("setTasks", newTasks);
+    selectArticle(store, payload) {
+      store.commit("setCurrentArticle", payload);
     },
   },
   modules: {},

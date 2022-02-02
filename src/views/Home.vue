@@ -1,61 +1,46 @@
 <template>
   <div class="home">
-    <h2>Todo List</h2>
-    <div class="taskList">
+    <h2>Berita Terkini</h2>
+    <div class="container">
+      <p v-if="isLoading" class="loader">Sedang memuat.. Mohon tunggu..</p>
       <div
-        class="taskItem"
-        v-for="(taskItem, indexItem) in tasks"
-        :key="indexItem.title"
+        v-else
+        v-for="(article, index) in articles"
+        :key="index"
+        class="article"
       >
-        <TaskItem
-          :task="taskItem"
-          :index="indexItem"
-          @edit-task="editTask"
-          @delete-task="deleteTask"
+        <Card
+          :source="article.source.name"
+          :author="article.author"
+          :title="article.title"
+          :url="article.urlToImage"
+          :publishedAt="article.publishedAt"
+          :content="article.content"
+          :articleUrl="article.url"
         />
       </div>
     </div>
-    <div class="userInput">
-      <input type="text" v-model="currentTask" />
-      <div class="inputButton">
-        <button @click="addTask">Tambahkan</button>
-      </div>
-    </div>
-    <div v-if="tasks.length > 3" class="messages">Hebat!</div>
   </div>
 </template>
 
 <script>
-import TaskItem from "@/components/Task.vue";
+import Card from "@/components/Card.vue";
 
 export default {
   name: "Home",
   components: {
-    TaskItem,
+    Card,
   },
   computed: {
-    tasks() {
-      return this.$store.state.tasks;
+    articles() {
+      return this.$store.state.articles;
+    },
+    isLoading() {
+      return this.$store.state.isLoading;
     },
   },
-  data() {
-    return {
-      currentTask: "",
-    };
-  },
-  methods: {
-    addTask() {
-      this.$store.dispatch("addTask", {
-        title: this.currentTask,
-      });
-      this.currentTask = "";
-    },
-    editTask({ index, task }) {
-      this.$store.dispatch("editTask", { index, task });
-    },
-    deleteTask(index) {
-      this.$store.dispatch("deleteTask", { index });
-    },
+  mounted() {
+    this.$store.dispatch("fetchNews");
   },
 };
 </script>
@@ -71,5 +56,26 @@ input {
 .inputButton {
   width: 20%;
   text-align: center;
+}
+.container {
+  display: flex;
+  flex-wrap: wrap;
+}
+.article {
+  width: 50%;
+}
+h2 {
+  text-align: center;
+}
+.loader {
+  justify-content: center;
+  width: 100%;
+  text-align: center;
+}
+
+@media screen and (max-width: 640px) {
+  .article {
+    width: 100%;
+  }
 }
 </style>
