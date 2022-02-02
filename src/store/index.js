@@ -3,6 +3,8 @@ import Vuex from "vuex";
 import createPersistedState from "vuex-persistedstate";
 import axios from "axios";
 
+import { mockData } from "../assets/mock";
+
 const API_KEY = "2855be0bd75a436cb0f78dd5e74313cf";
 
 Vue.use(Vuex);
@@ -37,6 +39,10 @@ export default new Vuex.Store({
         )
         .then((response) => {
           store.commit("setArticles", response.data.articles);
+          store.commit("setLoading", false);
+        })
+        .catch(() => {
+          store.commit("setArticles", mockData.articles);
           store.commit("setLoading", false);
         });
     },
